@@ -3,6 +3,10 @@ import { ViewChild, ElementRef, Component, signal } from '@angular/core';
 /* Importe el pipe */
 import { PercentPipe } from '@angular/common';
 
+import { FormsModule } from '@angular/forms'; // Importa FormsModule
+import { IonicModule } from '@ionic/angular'; // Importa IonicModule
+import { CommonModule } from '@angular/common'; // Importa CommonModule
+
 import {
   /* Importe los componentes de la UI */
   IonCardContent, IonButton, IonList, IonItem, IonLabel,
@@ -29,6 +33,10 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
     /* Registre el pipe */
     PercentPipe,
 
+    CommonModule,
+    FormsModule,
+    IonicModule,
+
     /* Registre los componentes de la UI */
     IonCardContent, IonButton, IonList, IonItem, IonLabel,
     IonFab, IonFabButton, IonIcon, IonCard, 
@@ -40,12 +48,18 @@ export class Tab1Page {
   /* Declare la referencia al elemento con el id image */
   @ViewChild('image', { static: false }) imageElement!: ElementRef<HTMLImageElement>;
 
+  imageUrlInput: string = '';
+  priceInput: number | null = null;
+
   imageReady = signal(false)
   imageUrl = signal("")
 
   /* Declare los atributos para almacenar el modelo y la lista de clases */
   modelLoaded = signal(false);
   classLabels: string[] = [];
+
+  /* Lista de predicciones */
+  predictions: any[] = [];
 
   /* Registre el servicio en el constructor */
   constructor(private teachablemachine: TeachablemachineService) {
@@ -58,6 +72,15 @@ export class Tab1Page {
     await this.teachablemachine.loadModel()
     this.classLabels = this.teachablemachine.getClassLabels()
     this.modelLoaded.set(true)
+  }
+
+  onSubmit(): void {
+    if (this.imageUrlInput) {
+      this.imageUrl.set(this.imageUrlInput);
+      this.imageReady.set(true);
+    }
+    // JORGE!!!!! Aquí manejas el precio si es necesario
+    console.log('Precio ingresado:', this.priceInput);
   }
 
   /* El método onSubmit para enviar los datos del formulario mediante el servicio */
@@ -77,9 +100,6 @@ export class Tab1Page {
         reader.readAsDataURL(file); // Leer el archivo como base64
     }
   }
-  /* Lista de predicciones */
-  predictions: any[] = [];
-
 
   /* Método para obtener la predicción a partir de la imagen */
   async predict() {
